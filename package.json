@@ -1,7 +1,7 @@
 {
-  "name": "sanity-plugin-webhook-deploy",
+  "name": "sanity-plugin-webhook-github-workflow",
   "version": "1.0.0",
-  "description": "Simple tab to manually trigger webhook deploys",
+  "description": "Simple tab to manually trigger github workflow",
   "main": "lib/index.js",
   "scripts": {
     "lint": "eslint .",
@@ -11,13 +11,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/gardener-nyc/sanity-plugin-webhook-deploy.git"
+    "url": "git@github.com:bulderbank/sanity-plugin-webhook-github-workflow.git"
   },
   "keywords": [
     "sanity",
     "sanity-plugin"
   ],
-  "author": "Ian Hatcher-Williams <ian@gardener.nyc>",
+  "author": "Frode Storhaug <frode.storhaug@bulderbank.no>",
   "license": "MIT",
   "dependencies": {
     "@sanity/icons": "^1.2.3",
@@ -39,9 +39,9 @@
     "react": "^17.0.0"
   },
   "bugs": {
-    "url": "https://github.com/gardener-nyc/sanity-plugin-webhook-deploy/issues"
+    "url": "https://github.com/bulderbank/sanity-plugin-webhook-github-workflow/issues"
   },
-  "homepage": "https://github.com/gardener-nyc/sanity-plugin-webhook-deploy#readme",
+  "homepage": "https://github.com/bulderbank/sanity-plugin-webhook-github-workflow#readme",
   "prettier": {
     "semi": false,
     "printWidth": 100,

@@ -1,14 +1,14 @@
-# sanity-plugin-webhook-deploy
+# sanity-plugin-github-workflow
 
-Simple tab to manually trigger webhook deploys
+Simple tab to manually trigger github workflows
 
-![Tux, the Linux mascot](./docs/webhook-deploy.png)
-
+![Tux, the Linux mascot](./docs/envs.png)
+![Tux, the Linux mascot](./docs/newEnv.png)
 
 ## Installation
 
 ```
-sanity install webhook-deploy
+sanity install webhook-github-workflow
 ```
 
 ## License

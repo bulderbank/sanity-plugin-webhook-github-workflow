@@ -18,7 +18,7 @@ import {
 const WEBHOOK_TYPE = "webhook_deploy"
 const client = sanityClient.withConfig({apiVersion: '2021-03-25'})
 
-const DeployModalNew = ({ onClose }) => {
+const DeployModalEdit = ({ onClose, hook }) => {
   const toast = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [pendingHook, setPendingHook] = useState({
@@ -27,12 +27,12 @@ const DeployModalNew = ({ onClose }) => {
     statusBadgeUrl: "",
     githubToken: "",
     dataset: "",
-    githubBody: ""
+    githubBody: "",
   })
   const isFormDisabled =
     !pendingHook.title || !pendingHook.url || !pendingHook.statusBadgeUrl
 
-  const onCloseNewModal = () => {
+  const onCloseEditModal = () => {
     onClose(false)
   }
 
@@ -50,7 +50,7 @@ const DeployModalNew = ({ onClose }) => {
         statusBadgeUrl: pendingHook.statusBadgeUrl,
         githubToken: pendingHook.githubToken,
         dataset: pendingHook.dataset,
-        githubBody: pendingHook.githubBody
+        githubBody: pendingHook.githubBody,
       })
     } catch (error) {
       toast.push({
@@ -66,11 +66,15 @@ const DeployModalNew = ({ onClose }) => {
       title: `Added ${pendingHook.title}!`,
     })
 
-    onCloseNewModal()
+    onCloseEditModal()
   }
 
   return (
-    <Dialog width={1} header="New github Enviroment" onClose={onCloseNewModal}>
+    <Dialog
+      width={1}
+      header="Edit github Enviroment"
+      onClose={onCloseEditModal}
+    >
       <Box padding={4}>
         <form onSubmit={onSubmit}>
           <Stack space={5}>
@@ -79,7 +83,7 @@ const DeployModalNew = ({ onClose }) => {
                 <Label>Title</Label>
               </Box>
               <TextInput
-                value={pendingHook.title}
+                value={pendingHook.title || hook.title}
                 onChange={(event) =>
                   setPendingHook({
                     ...pendingHook,
@@ -93,7 +97,7 @@ const DeployModalNew = ({ onClose }) => {
                 <Label>URL</Label>
               </Box>
               <TextInput
-                value={pendingHook.url}
+                value={pendingHook.url || hook.url}
                 onChange={(event) =>
                   setPendingHook({
                     ...pendingHook,
@@ -107,7 +111,7 @@ const DeployModalNew = ({ onClose }) => {
                 <Label>Status Badge URL</Label>
               </Box>
               <TextInput
-                value={pendingHook.statusBadgeUrl}
+                value={pendingHook.statusBadgeUrl || hook.statusBadgeUrl}
                 onChange={(event) =>
                   setPendingHook({
                     ...pendingHook,
@@ -120,13 +124,15 @@ const DeployModalNew = ({ onClose }) => {
               <Box marginBottom={3}>
                 <Label>Dataset</Label>
               </Box>
-              <Select value={pendingHook.dataset}
+              <Select
+                value={pendingHook.dataset || hook.dataset}
                 onChange={(event) =>
-                    setPendingHook({
+                  setPendingHook({
                     ...pendingHook,
                     dataset: event.target.value,
-                    })
-                }>
+                  })
+                }
+              >
                 <optgroup label="Datasets">
                   <option value="Production">Production</option>
                   <option value="Staging">Staging</option>
@@ -152,7 +158,8 @@ const DeployModalNew = ({ onClose }) => {
                 <Label>RequestBody</Label>
               </Box>
               <TextArea
-                value={pendingHook.githubBody}
+                height={10}
+                value={pendingHook.githubBody || hook.githubBody}
                 onChange={(event) =>
                   setPendingHook({
                     ...pendingHook,
@@ -181,4 +188,4 @@ const DeployModalNew = ({ onClose }) => {
   )
 }
 
-export default DeployModalNew
+export default DeployModalEdit

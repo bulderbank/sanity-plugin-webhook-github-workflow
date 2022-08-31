@@ -1,15 +1,32 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {nanoid} from 'nanoid';
 import client from 'part:@sanity/base/client';
 import styled from 'styled-components';
 import {useToast, Box, Card, Button, Spinner, Dialog} from '@sanity/ui';
 import axios from 'axios';
 
+import DeployModalEdit from './DeployModalEdit';
+
+
 const DeployItem = ({hook}) => {
 	const toast = useToast();
 	const [lastDeploy, setLastDeploy] = useState(nanoid());
+    const [isEditWebhookModalOpen, setEditWebhookModalOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+    const [status, setStatus] = useState({});
 	const [isConfirmOpen, setConfirmOpen] = useState(false);
+
+    React.useEffect(() => {
+        getDeployStatus();
+    }, []);
+
+    const getDeployStatus = () => {
+       axios.get(hook.statusBadgeUrl, {
+            headers: {
+              'Authorization': `${hook.githubToken}` 
+            }
+          }).then(bdg =>setStatus({status: bdg?.data?.workflow_runs[0]?.status ?? '', time: new Date(bdg?.data?.workflow_runs[0]?.run_started_at).toDateString() ?? '' }  ));
+    }
 
 	const onDelete = async () => {
 		setIsDeleting(true);
@@ -33,9 +50,23 @@ const DeployItem = ({hook}) => {
 		setConfirmOpen(false);
 	};
 
+    
+        
+    const statusText = (stat) => {
+        if(stat === 'completed' || stat === 'success') {
+            return '#339900';
+        }else if(stat === 'in_progress' || stat === 'queued') {
+            return '#ff9966';
+        } else {
+            return '#cc3300';
+        }
+    }
 	const onDeploy = async () => {
 		try {
-			await axios.post(hook.url, {});
+            await axios.post(hook.url, hook.githubBody, {
+                headers: {
+                  'Authorization': `${hook.githubToken}` 
+                }});
 		} catch (error) {
 			toast.push({
 				status: 'error',
@@ -80,7 +111,6 @@ const DeployItem = ({hook}) => {
 	const CardRow = styled.div`
 		display: flex;
 		flex-direction: column;
-
 		@media (min-width: 1000px) {
 			flex-direction: row;
 			justify-content: space-between;
@@ -93,7 +123,6 @@ const DeployItem = ({hook}) => {
 		flex-direction: column;
 		align-items: flex-start;
 		margin-bottom: 20px;
-
 		@media (min-width: 1000px) {
 			flex-direction: row;
 			margin-bottom: 0;
@@ -102,7 +131,6 @@ const DeployItem = ({hook}) => {
 
 	const MetaColumn = styled.div`
 		margin-bottom: 5px;
-
 		@media (min-width: 1000px) {
 			margin-bottom: 0;
 			margin-right: 10px;
@@ -113,27 +141,19 @@ const DeployItem = ({hook}) => {
 		display: flex;
 		flex-direction: row;
 		align-items: flex-start;
-
 		@media (min-width: 1000px) {
 			align-items: flex-end;
 		}
 	`;
 
-	const Code = styled.div`
-		font-family: -apple-system-ui-monospace, 'SF Mono', Menlo, Monaco,
-			Consolas, monospace;
-		padding: 2px;
-		display: block;
-		font-size: 0.75em;
-		overflow-wrap: break-word;
-		border-radius: 5px;
-		border: 1px solid #cdcdcd;
-		@media (max-width: 600px) {
-			max-width: 250px;
-		}
-	`;
-
+    const editWebhookModal = isEditWebhookModalOpen && (
+		<DeployModalEdit hook={hook} onClose={() => setEditWebhookModalOpen(false)} />
+	);
+       
 	return (
+        <Box>
+        {editWebhookModal}
+    
 		<Card padding={4} radius={2} shadow={1}>
 			<CardRow>
 				<MetaContainer>
@@ -141,16 +161,28 @@ const DeployItem = ({hook}) => {
 						<p style={{margin: 0}}>{hook.title || 'Netlify'}</p>
 					</MetaColumn>
 					<MetaColumn>
-						<Code size={1}>{hook.url}</Code>
+						<span>Sist startet: {(status.time)}</span>
 					</MetaColumn>
-					<img
-						key={lastDeploy}
-						src={hook.statusBadgeUrl}
-						style={{display: 'block'}}
-					/>
+                    <MetaColumn>
+					<span style={{color: statusText(status.status)}}>{status.status}</span>
+                    </MetaColumn>
 				</MetaContainer>
 				<ActionsContainer>
 					<Box>
+						<Button
+							tone="positive"
+							text="Refresh"
+							onClick={() => getDeployStatus()}
+						/>
+					</Box>
+                    <Box marginLeft={2}>
+						<Button
+							tone="positive"
+							text="Edit"
+							onClick={() => setEditWebhookModalOpen(true)}
+						/>
+					</Box>
+                    <Box marginLeft={2}>
 						<Button
 							tone="critical"
 							text="Delete"
@@ -168,6 +200,7 @@ const DeployItem = ({hook}) => {
 			</CardRow>
 			{confirmDialog}
 		</Card>
+        </Box>
 	);
 };
 
